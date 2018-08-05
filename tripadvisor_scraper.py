@@ -102,7 +102,8 @@ class TripadvisorScraper():
         if not max_reviews: max_reviews = sys.maxsize
         locale.setlocale(locale.LC_TIME, 'en_US')
 
-        if not is_valid_url(url): return logging.warning('Tripadvisor URL not valid.')
+        #TODO: Fix
+        # if not is_valid_url(url): return logging.warning('Tripadvisor URL not valid.')
         self.driver.get(url)
 
         time.sleep(2)  # TODO
