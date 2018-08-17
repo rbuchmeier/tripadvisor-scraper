@@ -145,8 +145,7 @@ if __name__ == '__main__':
     df = scraper.fetch_reviews(args.url, args.max)
     print('Successfully fetched {} reviews.'.format(len(df.index)))
     import os
-    file_is_empty = os.stat(args.outfile).st_size == 0
-    print(file_is_empty)
-    df.to_csv(args.outfile, mode='a', header=file_is_empty)
+    file_exists = not os.path.isfile(args.outfile)
+    df.to_csv(args.outfile, mode='a', header=file_exists)
     scraper.close()
 
