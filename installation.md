@@ -1,6 +1,6 @@
 https://stackoverflow.com/questions/23842713/using-python-3-in-virtualenv
 
-Installing on a Mac:
+# Installing on a Mac:
 
 `xcode-select --install`
 
@@ -17,6 +17,8 @@ Install Brew:
 `"export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3" >> .bash_profile"`
 
 `"source /usr/bin/virtualenvwrapper.sh" >> .bash_profile"`
+
+`source .bash_profile`
 
 Install Project from Github:
 
