@@ -28,7 +28,7 @@ Install Project from Github:
 
 Create a Python3 based virtual environment.
 
-`mkvirtualenv -p /usr/bin/python3 tripadvisor-scraper`
+`mkvirtualenv -p /usr/local/bin/python3 tripadvisor-scraper`
 
 Set into the virtual environment.
 
