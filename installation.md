@@ -18,7 +18,7 @@ Install Brew:
 
 `echo "export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3" >> .bash_profile`
 
-`echo "source /usr/bin/virtualenvwrapper.sh" >> .bash_profile`
+`echo "source /usr/local/bin/virtualenvwrapper.sh" >> .bash_profile`
 
 `source .bash_profile`
 
