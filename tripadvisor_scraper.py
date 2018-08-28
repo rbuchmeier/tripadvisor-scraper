@@ -30,16 +30,18 @@ import time
 
 import pandas as pd
 from selenium import webdriver
+from selenium.common import exceptions
 
 URL_PATTERN = 'http(s)?:\/\/.?(www\.)?tripadvisor\.com\/Restaurant_Review.*' #TODO: Fix
 
 class Review():
-    def __init__(self, id, date, title, user, text):
+    def __init__(self, id, date, title, user, text, language):
         self.id = id
         self.date = date
         self.title = title
         self.user = user
         self.text = text
+        self.language = language
 
 
 class TripadvisorScraper():
@@ -62,7 +64,7 @@ class TripadvisorScraper():
             'date_format': '%B %d, %Y'
         }
 
-    def _parse_page(self):
+    def _parse_page(self, language):
         reviews = []
         try:
             self.driver.find_element_by_xpath('//span[contains(., "{}") and @class="taLnk ulBlueLinks"]'.format(self.i18n['more_btn'])).click()
@@ -89,12 +91,28 @@ class TripadvisorScraper():
                     logging.warning('Fetched review {} twice.'.format(r.id))
                 else:
                     self.lookup[id] = True
-                    reviews.append(Review(id, date, title, user, text))
+                    reviews.append(Review(id, date, title, user, text, language))
             except:
-                logging.warning('Couldn\'t fetch review.')
+                logging.warning('Couldn\'t fetch review.') #TODO: This could be any error. Could be a false negative.
                 pass
 
         return reviews
+
+
+    def get_next_lang(lang_index=None):
+        try:
+            self.driver.find_element_by_xpath("//div[@class='prw_rup prw_filters_detail_language ui_column separated is-3']//div[@class='taLnk']").click()
+        except exceptions.NoSuchElementException as e:
+            self.driver.find_element_by_link_text('More languages').click()
+        lans = self.driver.find_elements_by_xpath("//ul[@class='langs']/*")
+        lans = [lan for lan in lans if lan.find_element_by_class_name('filterLabel').text != '']
+        lans_text = [lan.find_element_by_class_name('filterLabel').text for lan in lans]
+        lans_input = [lan.find_element_by_class_name('toggle').find_element_by_classname('filterInput') for lan in lans]
+        if not lang_index:
+            lang_index = 0
+        lans_input[lang_index].click()
+        return lans_text[lang_index]
+        
 
     def fetch_reviews(self, url, max_reviews=None, as_dataframe=True):
         self.lookup = {}
@@ -109,7 +127,10 @@ class TripadvisorScraper():
         time.sleep(2)  # TODO
 
         while len(reviews) < max_reviews:
-            reviews += self._parse_page()
+            lans_text = [None]
+            for i, lan_text in enumerate(lans_text):
+                lans_text.push(get_next_lang(i))
+                reviews += self._parse_page(lans_text[i])
             logging.info('Fetched a total of {} reviews by now.'.format(len(reviews)))
             next_button_container = self.driver.find_element_by_class_name('next')
             if 'disabled' in next_button_container.get_attribute('class'): break
