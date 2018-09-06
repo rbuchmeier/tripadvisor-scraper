@@ -99,20 +99,39 @@ class TripadvisorScraper():
         return reviews
 
 
-    def get_next_lang(lang_index=None):
+    def get_languages(self):
         try:
             self.driver.find_element_by_xpath("//div[@class='prw_rup prw_filters_detail_language ui_column separated is-3']//div[@class='taLnk']").click()
         except exceptions.NoSuchElementException as e:
             self.driver.find_element_by_link_text('More languages').click()
-        lans = self.driver.find_elements_by_xpath("//ul[@class='langs']/*")
-        lans = [lan for lan in lans if lan.find_element_by_class_name('filterLabel').text != '']
-        lans_text = [lan.find_element_by_class_name('filterLabel').text for lan in lans]
-        lans_input = [lan.find_element_by_class_name('toggle').find_element_by_classname('filterInput') for lan in lans]
-        if not lang_index:
-            lang_index = 0
-        lans_input[lang_index].click()
-        return lans_text[lang_index]
-        
+
+        # Below line worked at one point I think? Doesn't as of last testing (Sept 6, 2018)
+        # lans = self.driver.find_elements_by_xpath("//ul[@class='langs']/*")
+        # lans = [lan for lan in lans if lan.find_element_by_class_name('filterLabel').text != '']
+        # lans_text = [lan.find_element_by_class_name('filterLabel').text for lan in lans]
+        # lans_input = [lan.find_element_by_class_name('toggle').find_element_by_class_name('filterInput') for lan in lans]
+        lans = self.driver.find_elements_by_xpath("//div[@class='more-options']/*")
+        lan_text = [l.get_attribute("data-tracker") for l in lans]
+        lans = [lan.find_element_by_class_name('label') for lan in lans]
+        lans[0].click() #TODO: Find a better way to close the modal/popup
+        time.sleep(2)
+        return lan_text
+
+    def click_language_at_index(self, index):
+        self.driver.execute_script("window.scrollTo(0,0)") #Always run this at beginning of page
+        try:
+            self.driver.find_element_by_xpath("//div[@class='prw_rup prw_filters_detail_language ui_column separated is-3']//div[@class='taLnk']").click()
+        except exceptions.NoSuchElementException as e:
+            self.driver.find_element_by_link_text('More languages').click()
+
+        # Below line worked at one point I think? Doesn't as of last testing (Sept 6, 2018)
+        # lans = self.driver.find_elements_by_xpath("//ul[@class='langs']/*")
+        # lans = [lan for lan in lans if lan.find_element_by_class_name('filterLabel').text != '']
+        # lans_text = [lan.find_element_by_class_name('filterLabel').text for lan in lans]
+        # lans_input = [lan.find_element_by_class_name('toggle').find_element_by_class_name('filterInput') for lan in lans]
+        lans = self.driver.find_elements_by_xpath("//div[@class='more-options']/*")
+        lans = [lan.find_element_by_class_name('label') for lan in lans]
+        lans[index].click()
 
     def fetch_reviews(self, url, max_reviews=None, as_dataframe=True):
         self.lookup = {}
@@ -126,19 +145,25 @@ class TripadvisorScraper():
 
         time.sleep(2)  # TODO
 
-        while len(reviews) < max_reviews:
-            lans_text = [None]
-            for i, lan_text in enumerate(lans_text):
-                lans_text.push(get_next_lang(i))
-                reviews += self._parse_page(lans_text[i])
-            logging.info('Fetched a total of {} reviews by now.'.format(len(reviews)))
-            next_button_container = self.driver.find_element_by_class_name('next')
-            if 'disabled' in next_button_container.get_attribute('class'): break
-            next_button_container.click()
+        languages = self.get_languages()
 
-        locale.setlocale(locale.LC_TIME, self.locale_backup)
-        reviews = reviews[:max_reviews]
-        if as_dataframe: return pd.DataFrame.from_records([r.__dict__ for r in reviews]).set_index('id', drop=True)
+        for i, language in enumerate(languages):
+            if i == 0:
+                continue
+            self.click_language_at_index(i)
+            while len(reviews) < max_reviews:
+                print(language)
+                reviews += self._parse_page(language)
+                logging.info('Fetched a total of {} reviews by now.'.format(len(reviews)))
+                next_button_container = self.driver.find_element_by_class_name('next')
+                if 'disabled' in next_button_container.get_attribute('class'):
+                    break
+                next_button_container.click()
+
+            locale.setlocale(locale.LC_TIME, self.locale_backup)
+            reviews = reviews[:max_reviews]
+        if as_dataframe:
+            return pd.DataFrame.from_records([r.__dict__ for r in reviews]).set_index('id', drop=True)
         return reviews
 
     def close(self):
