@@ -152,7 +152,6 @@ class TripadvisorScraper():
                 continue
             self.click_language_at_index(i)
             while len(reviews) < max_reviews:
-                print(language)
                 reviews += self._parse_page(language)
                 logging.info('Fetched a total of {} reviews by now.'.format(len(reviews)))
                 next_button_container = self.driver.find_element_by_class_name('next')
