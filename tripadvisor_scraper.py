@@ -102,15 +102,16 @@ class TripadvisorScraper():
     def get_languages(self):
         try:
             self.driver.find_element_by_xpath("//div[@class='prw_rup prw_filters_detail_language ui_column separated is-3']//div[@class='taLnk']").click()
+            lans = self.driver.find_elements_by_xpath("//div[@class='more-options']/*")
         except exceptions.NoSuchElementException as e:
-            self.driver.find_element_by_link_text('More languages').click()
+            lans = self.driver.find_elements_by_xpath("//div[@class='prw_rup prw_filters_detail_language ui_column separated is-3']//div[@class='choices is-shown-at-tablet']/*")
+            # self.driver.find_element_by_link_text('More languages').click()
 
         # Below line worked at one point I think? Doesn't as of last testing (Sept 6, 2018)
         # lans = self.driver.find_elements_by_xpath("//ul[@class='langs']/*")
         # lans = [lan for lan in lans if lan.find_element_by_class_name('filterLabel').text != '']
         # lans_text = [lan.find_element_by_class_name('filterLabel').text for lan in lans]
         # lans_input = [lan.find_element_by_class_name('toggle').find_element_by_class_name('filterInput') for lan in lans]
-        lans = self.driver.find_elements_by_xpath("//div[@class='more-options']/*")
         lan_text = [l.get_attribute("data-tracker") for l in lans]
         lans = [lan.find_element_by_class_name('label') for lan in lans]
         lans[0].click() #TODO: Find a better way to close the modal/popup
@@ -121,15 +122,16 @@ class TripadvisorScraper():
         self.driver.execute_script("window.scrollTo(0,0)") #Always run this at beginning of page
         try:
             self.driver.find_element_by_xpath("//div[@class='prw_rup prw_filters_detail_language ui_column separated is-3']//div[@class='taLnk']").click()
+            lans = self.driver.find_elements_by_xpath("//div[@class='more-options']/*")
         except exceptions.NoSuchElementException as e:
-            self.driver.find_element_by_link_text('More languages').click()
+            lans = self.driver.find_elements_by_xpath("//div[@class='prw_rup prw_filters_detail_language ui_column separated is-3']//div[@class='choices is-shown-at-tablet']/*")
+            # self.driver.find_element_by_link_text('More languages').click()
 
         # Below line worked at one point I think? Doesn't as of last testing (Sept 6, 2018)
         # lans = self.driver.find_elements_by_xpath("//ul[@class='langs']/*")
         # lans = [lan for lan in lans if lan.find_element_by_class_name('filterLabel').text != '']
         # lans_text = [lan.find_element_by_class_name('filterLabel').text for lan in lans]
         # lans_input = [lan.find_element_by_class_name('toggle').find_element_by_class_name('filterInput') for lan in lans]
-        lans = self.driver.find_elements_by_xpath("//div[@class='more-options']/*")
         lans = [lan.find_element_by_class_name('label') for lan in lans]
         lans[index].click()
 
