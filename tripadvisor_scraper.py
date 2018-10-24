@@ -156,10 +156,13 @@ class TripadvisorScraper():
             while len(reviews) < max_reviews:
                 reviews += self._parse_page(language)
                 logging.info('Fetched a total of {} reviews by now.'.format(len(reviews)))
-                next_button_container = self.driver.find_element_by_class_name('next')
-                if 'disabled' in next_button_container.get_attribute('class'):
+                try:
+                    next_button_container = self.driver.find_element_by_class_name('next')
+                    if 'disabled' in next_button_container.get_attribute('class'):
+                        break
+                    next_button_container.click()
+                except exceptions.NoSuchElementException as e:
                     break
-                next_button_container.click()
 
             locale.setlocale(locale.LC_TIME, self.locale_backup)
             reviews = reviews[:max_reviews]
@@ -193,6 +196,6 @@ if __name__ == '__main__':
     print('Successfully fetched {} reviews.'.format(len(df.index)))
     import os
     file_exists = not os.path.isfile(args.outfile)
-    df.to_csv(args.outfile, mode='a', header=file_exists)
+    df.to_csv(args.outfile, mode='a', header=file_exists, encoding='utf-8')
     scraper.close()
 
