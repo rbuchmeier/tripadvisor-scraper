@@ -15,7 +15,7 @@ Install requirements (recommendation: use a virtualenv with python3):
 
 Run file:
 
-`python tripadvisor_scraper.py -e chrome -o reviews.csv https://www.tripadvisor.com/Restaurant_Review-g60502-d804358-Reviews-Cowfish-Lander_Wyoming.html`
+`python tripadvisor_scraper.py -e chrome -o reviews.csv https://www.tripadvisor.com/Attraction_Review-g60502-d496281-Reviews-Sinks_Canyon_State_Park-Lander_Wyoming.html`
 
 ## Advice
 

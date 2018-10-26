@@ -67,8 +67,13 @@ class TripadvisorScraper():
     def _parse_page(self, language):
         reviews = []
         try:
+            time.sleep(2)
             self.driver.find_element_by_xpath('//span[contains(., "{}") and @class="taLnk ulBlueLinks"]'.format(self.i18n['more_btn'])).click()
-        except:
+        except exceptions.NoSuchElementException as e:
+            pass
+        except Exception as e:
+            print(e.msg)
+            print("Unable to get the rest of the text off of some of the reviews...resuming...")
             pass
 
         time.sleep(2)  # TODO
